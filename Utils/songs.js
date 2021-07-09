@@ -1,9 +1,8 @@
 const ytsr = require('ytsr');
 const ytdl = require('ytdl-core');
-const youtubedl = require('youtube-dl');
 const { options } = require('./ytdlConfig');
 const { getValueForKey, setKey } = require('./cache');
-const { ONE_YEAR } = require('./constants');
+// const { getInfo } = require('./extractors');
 
 function cleanTitle(title) {
     let sanitizeTitle = '';
@@ -68,21 +67,12 @@ async function searchYoutubeForVideoIds(searchedText) {
         const searchResults = await ytsr(searchedText, {
             limit: 20
         });
-        setKey(`__searchResults__${searchedText}`, searchResults, ONE_YEAR);
+        setKey(`__searchResults__${searchedText}`, searchResults);
         return getVideoIdsFromSearchResults(searchResults);
     } catch (error) {
         console.error('Error searchYoutubeForVideoIds getSong', error);
     }
     return [];
-}
-
-async function getSongInfo(videoId) {
-    return new Promise((resolve, reject) => {
-        youtubedl.getInfo(videoId, (err, info) => {
-            if (err) reject(err);
-            resolve(info);
-        });
-    });
 }
 
 async function getSong(videoId) {
@@ -93,15 +83,13 @@ async function getSong(videoId) {
         // await getSongInfo(videoId);
         // eslint-disable-next-line max-len
         // const formats = audioYT.formats.filter((format) => format.acodec !== 'none' && format.vcodes !== 'none' && format.container === 'm4a_dash');
-        const formats = audioYT.formats.filter((format) => format.hasAudio && format.hasVideo && format.container === 'mp4');
+        const formats = audioYT.formats.filter((format) => format.hasAudio && format.container === 'mp4' && !format.isLive);
 
         if (formats && formats.length) {
-            // const audio = ytdl.chooseFormat(formats, {
-            //     quality: 'highestvideo'
-            // });
-            deleteObjAttrsExcept(formats[0], 'url');
-            assignAttrs(formats[0], audioYT.videoDetails);
-            return { ...formats[0] };
+            const audio = formats[0];
+            deleteObjAttrsExcept(audio, 'url');
+            assignAttrs(audio, audioYT.videoDetails);
+            return { ...audio };
         }
         return {};
     } catch (error) {
@@ -142,7 +130,7 @@ async function getSongsOrCache(videoIds) {
                 return audioCached;
             }
             const audio = await getSong(videoId);
-            setKey(`__youtube-songs__${videoId}`, { ...audio }, ONE_YEAR);
+            setKey(`__youtube-songs__${videoId}`, { ...audio });
 
             return audio;
         }));

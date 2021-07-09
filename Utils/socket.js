@@ -70,7 +70,7 @@ class MySocket {
         buildMedia(chatRoom);
 
         try {
-            const audio = await getSong(song.id, true);
+            const audio = await getSong(song.id);
 
             if (audio && Object.keys(audio).length) {
                 Object.assign(audio, {

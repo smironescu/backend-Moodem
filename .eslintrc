@@ -17,6 +17,7 @@
         "no-plusplus": "off",
         "max-len": ["warn", { "code": 150 }],
         "indent": ["error", 4],
-        "no-underscore-dangle": 0
+        "no-underscore-dangle": 0,
+        "camelcase": 0
     }
 }
