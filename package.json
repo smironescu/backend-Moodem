@@ -1,0 +1,37 @@
+{
+  "name": "socket-io-expo-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon backend --watch index.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@sentry/integrations": "^6.8.0",
+    "@sentry/node": "^6.8.0",
+    "cli-progress": "^3.9.0",
+    "express": "^4.17.1",
+    "https-proxy-agent": "^5.0.0",
+    "memory-cache": "^0.2.0",
+    "miniget": "^4.2.1",
+    "node-cache": "^5.1.2",
+    "node-fetch": "^2.6.1",
+    "socket.io": "^4.1.2",
+    "socket.io-client": "^4.1.2",
+    "youtube-dl": "^3.5.0",
+    "youtube-dl-exec": "^1.2.4",
+    "ytdl-core": "^4.8.3",
+    "ytsr": "^3.5.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.30.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.23.4",
+    "fly": "^4.2.4",
+    "nodemon": "^2.0.9"
+  }
+}
