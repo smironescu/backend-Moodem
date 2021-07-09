@@ -75,7 +75,6 @@ class MySocket {
             if (audio && Object.keys(audio).length) {
                 Object.assign(audio, {
                     voted_users: song.voted_users,
-                    hasExpired: false,
                     user: song.user,
                     isPlaying: song.isPlaying
                 });

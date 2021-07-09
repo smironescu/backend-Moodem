@@ -37,9 +37,7 @@ function assignAttrs(object = {}, attrs = {}) {
         likes: attrs.likes || 0,
         viewCount: attrs.viewCount || '0',
         duration: attrs.lengthSeconds || '0',
-        thumbnail: attrs.thumbnails ? attrs.thumbnails[0].url : 'No image',
-        hasExpired: false,
-        isCachedInServerNode: false
+        thumbnail: attrs.thumbnails ? attrs.thumbnails[0].url : 'No image'
     });
 }
 
@@ -111,7 +109,6 @@ function setExtraAttrs(audios, uid, isSearching = false) {
             boosts_count: 0,
             voted_users: [],
             boosted_users: [],
-            hasExpired: false,
             user: {
                 uid
             }
