@@ -4,6 +4,8 @@ const {
     setExtraAttrs,
     getSong
 } = require('./songs');
+const { getKeyLocalAndServer, setKeyLocalAndServer } = require('./cache');
+const { ONE_YEAR } = require('./constants');
 
 const chatRooms = {};
 
@@ -124,7 +126,12 @@ class MySocket {
     async getChatMsgs({ chatRoom }) {
         buildMedia(chatRoom);
 
+        const cachedMessages = await getKeyLocalAndServer(chatRoom) || [];
         const { messages } = chatRooms[chatRoom];
+
+        if (cachedMessages.length) {
+            Object.assign(messages, cachedMessages);
+        }
 
         if (messages.length) {
             this.serverIO.to(chatRoom).emit('set-chat-messages', messages.slice().reverse());
@@ -138,6 +145,7 @@ class MySocket {
         const { messages } = chatRooms[chatRoom];
 
         messages.push(msg);
+        setKeyLocalAndServer(chatRoom, messages, ONE_YEAR);
         this.serverIO.to(chatRoom).emit('set-chat-message', msg);
     }
 

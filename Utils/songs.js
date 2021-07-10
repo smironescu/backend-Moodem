@@ -1,7 +1,8 @@
 const ytsr = require('ytsr');
 const ytdl = require('ytdl-core');
 const { options } = require('./ytdlConfig');
-const { getValueForKey, setKey } = require('./cache');
+const { getKeyLocalAndServer, setKeyLocalAndServer } = require('./cache');
+const { ONE_YEAR } = require('./constants');
 // const { getInfo } = require('./extractors');
 
 function cleanTitle(title) {
@@ -58,14 +59,14 @@ function getVideoIdsFromSearchResults(searchResults) {
 
 async function searchYoutubeForVideoIds(searchedText) {
     try {
-        const searchResultsCached = await getValueForKey(`__searchResults__${searchedText}`);
+        const searchResultsCached = await getKeyLocalAndServer(`__searchResults__${searchedText}`);
         if (searchResultsCached) {
             return getVideoIdsFromSearchResults(searchResultsCached);
         }
         const searchResults = await ytsr(searchedText, {
             limit: 20
         });
-        setKey(`__searchResults__${searchedText}`, searchResults);
+        setKeyLocalAndServer(`__searchResults__${searchedText}`, searchResults, ONE_YEAR);
         return getVideoIdsFromSearchResults(searchResults);
     } catch (error) {
         console.error('Error searchYoutubeForVideoIds getSong', error);
@@ -122,12 +123,12 @@ function setExtraAttrs(audios, uid, isSearching = false) {
 async function getSongsOrCache(videoIds) {
     try {
         return await Promise.allSettled(videoIds.map(async (videoId) => {
-            const audioCached = await getValueForKey(`__youtube-songs__${videoId}`);
+            const audioCached = await getKeyLocalAndServer(`__youtubeSongs__${videoId}`);
             if (audioCached) {
                 return audioCached;
             }
             const audio = await getSong(videoId);
-            setKey(`__youtube-songs__${videoId}`, { ...audio });
+            setKeyLocalAndServer(`__youtubeSongs__${videoId}`, audio);
 
             return audio;
         }));

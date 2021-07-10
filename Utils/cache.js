@@ -1,11 +1,49 @@
 const NodeCache = require('node-cache');
+const storage = require('node-persist');
 const { FIVE_HOURS } = require('./constants');
 
+const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000; /* if ttl is truthy but it's not a number, use 24h as default */
+const ONE_MONTH = TWENTY_FOUR_HOURS * 30;
+const ONE_YEAR = ONE_MONTH * 12;
+
 const cache = new NodeCache();
+// eslint-disable-next-line no-return-await
+(async () => await storage.init({
+    ttl: ONE_YEAR
+}))();
 // memory-cache docs -> https://github.com/ptarjan/node-cache
 // Socket.io do -> https://socket.io/docs/server-api/#socket-id
 
-async function getValueForKey(key) {
+async function setKeyLocalStorage(key, value, options = { ttl: FIVE_HOURS }) {
+    await storage.setItem(key, value, options);
+}
+
+async function setKeyServerStorage(key, value, expire = FIVE_HOURS) {
+    await cache.set(key, value, expire);
+}
+
+async function setKeyLocalAndServer(key, value, expire) {
+    await setKeyServerStorage(key, value, expire);
+    await setKeyLocalStorage(key, value, {
+        ttl: expire || FIVE_HOURS
+    });
+}
+
+async function getKeyLocalStorage(key) {
+    const cachedValue = await storage.getItem(key);
+
+    if (cachedValue && Object.keys(cachedValue).length) {
+        Object.assign(cachedValue, {
+            isCachedInLocalNode: true
+        });
+        return cachedValue;
+    } if (cachedValue) {
+        return cachedValue;
+    }
+    return cachedValue;
+}
+
+async function getKeyServerStorage(key) {
     const audioMem = await cache.get(key);
 
     if (audioMem && Object.keys(audioMem).length) {
@@ -14,16 +52,25 @@ async function getValueForKey(key) {
         });
 
         return audioMem;
+    } if (audioMem) {
+        return audioMem;
     }
-    return null;
+    return audioMem;
 }
 
-function setKey(key, value, expire = FIVE_HOURS) {
-    return cache.set(key, value, expire);
+async function getKeyLocalAndServer(key) {
+    const cachedLocal = await getKeyLocalStorage(key);
+    const cachedServer = await getKeyServerStorage(key);
+
+    return cachedLocal || cachedServer || null;
 }
 
 module.exports = {
     cache,
-    getValueForKey,
-    setKey
+    getKeyServerStorage,
+    getKeyLocalStorage,
+    getKeyLocalAndServer,
+    setKeyServerStorage,
+    setKeyLocalStorage,
+    setKeyLocalAndServer
 };
