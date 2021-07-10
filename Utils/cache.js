@@ -2,7 +2,7 @@ const NodeCache = require('node-cache');
 const storage = require('node-persist');
 const { FIVE_HOURS } = require('./constants');
 
-const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000; /* if ttl is truthy but it's not a number, use 24h as default */
+const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 const ONE_MONTH = TWENTY_FOUR_HOURS * 30;
 const ONE_YEAR = ONE_MONTH * 12;
 
@@ -11,8 +11,6 @@ const cache = new NodeCache();
 (async () => await storage.init({
     ttl: ONE_YEAR
 }))();
-// memory-cache docs -> https://github.com/ptarjan/node-cache
-// Socket.io do -> https://socket.io/docs/server-api/#socket-id
 
 async function setKeyLocalStorage(key, value, options = { ttl: FIVE_HOURS }) {
     await storage.setItem(key, value, options);
