@@ -57,6 +57,7 @@ async function getKeyServerStorage(key) {
 }
 
 async function getKeyLocalAndServer(key) {
+    // await storage.clear();
     const cachedLocal = await getKeyLocalStorage(key);
     const cachedServer = await getKeyServerStorage(key);
 

@@ -1,25 +1,46 @@
 const app = require('express')();
 const serverHTTP = require('http').Server(app);
 const serverIO = require('socket.io')(serverHTTP);
+const noc = require('no-console');
 const { initSentry } = require('./Utils/sentry');
 const { MySocket } = require('./Utils/socket');
+const { MyNotifications } = require('./notifications/index');
+const config = require('./config');
 
-// initSentry()
+noc(); // after this no log will be printed in prod mode if  NODE_DEBUG is not set
+// You need to set "NODE_DEBUG" environment variable to true when running node server in prod mode to see logs.
 
-app.get('/', (req, res) => {
+const myNotification = new MyNotifications();
+console.log('HEYYY 2', `NODE_ENV=${config.NODE_ENV}`); //
+
+// myNotification.sendNotification({
+//     alert: 'Hola, q ase'
+// });
+
+// initSentry() //
+
+app.get('/', (req, res) => { //
     res.sendfile('index.html');
 });
 
 serverIO.use((socket, next) => {
-    this.mySocket = new MySocket(socket, serverIO);
     Object.assign(socket, {
+        id: socket.handshake.query.uid,
         uid: socket.handshake.query.uid,
-        displayName: socket.handshake.query.displayName
+        displayName: socket.handshake.query.displayName,
+        userAgent: socket.handshake.query.userAgent || null
     });
+    this.mySocket = new MySocket(socket, serverIO);
     next(null, true);
 });
 
 serverIO.on('connection', async (socket) => {
+    // myNotification.sendNotification();
+    // myNotification.sendNotification({
+    //     alert: 'Hola que tal',
+    //     title: 'Name of the user',
+    //     data: 'You have a message from: Dummy'
+    // });
     socket.on('app-goes-to-background', () => {
     // do nothing
         console.log('Onlineee');
@@ -64,6 +85,21 @@ serverIO.on('connection', async (socket) => {
     // Get User Private Messages
     socket.on('get-private-messages', this.mySocket.handleUserPrivateMessages);
 
+    socket.on('push-notification-received-msg', ({ user_receiver_msg, user_sender_msg }) => {
+        myNotification.sendNotification(user_receiver_msg, user_sender_msg);
+    });
+
+    // Get User Unread Messages TO-DO
+    // socket.on('reciever-unread-messages', (data) => {
+    //     const { msg, msg: { receiver, sender } } = data;
+    //     console.log(msg, 'Receiver', receiver, 'socket.id', socket.id, 'socket.uid', socket.uid);
+    //     serverIO.to(receiver).emit('unread-messages', {
+    //         msg,
+    //         receiver,
+    //         sender
+    //     });
+    // });
+
     // User has disconected
     socket.on('disconnect', (reason) => {
         console.log('DISCONNNECT SOCKET ID', socket.id, 'uid', socket.uid, 'With REASON', reason);
@@ -77,6 +113,6 @@ serverIO.on('connection', async (socket) => {
     });
 });
 
-serverHTTP.listen(3000, '::', () => { // Digital Ocean Open Port
+serverHTTP.listen(config.PORT, '::', () => { // Digital Ocean Open Port
     console.log('listening on *:3000');
 });
