@@ -4,7 +4,7 @@ const path = require('path');
 const PushNotifications = require('node-pushnotifications');
 
 const DEFAULT_TOPIC = 'me.sergiumironescu.Moodem';
-const DEFAULT_SOUND = 'beep.mp3';
+const DEFAULT_SOUND = 'beep.aiff';
 
 const settings = {
     gcm: {
@@ -48,7 +48,7 @@ const data = {
     retries: 1, // gcm, apn
     encoding: '', // apn
     badge: 2, // gcm for ios, apn
-    sound: DEFAULT_SOUND, // gcm, apn
+    sound: 'ping.aiff', // gcm, apn
     android_channel_id: '', // gcm - Android Channel ID
     alert: { // apn, will take precedence over title and body
         title: 'Sender Name',
@@ -72,7 +72,6 @@ const data = {
 
 class MyNotifications {
     constructor() {
-        console.log('HEYYY', process.env.NODE_ENV);
         this.push = new PushNotifications(settings);
         this.bagde = 0;
         this.sendNotification = this.sendNotification.bind(this);
@@ -88,7 +87,9 @@ class MyNotifications {
         });
         await this.push.send(deviceToken, note)
             .then((results) => {
-                console.log('Results', results);
+                console.log('Results Success', results[0].success);
+                console.log('Results Fail', results[0].failure);
+                console.log('Results Message', results[0].message);
             })
             .catch((error) => console.log('Send Notification error: ', error));
     }
