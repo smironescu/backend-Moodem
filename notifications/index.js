@@ -14,7 +14,7 @@ const settings = {
     apn: {
         cert: path.join(__dirname, '/cert.pem'),
         key: path.join(__dirname, '/key.pem'),
-        production: process.env.NODE_ENV === 'production' // true for APN production environment, false for APN sandbox environment,
+        production: false // true for APN production environment, false for APN sandbox environment,
     },
     isAlwaysUseFCM: false // true all messages will be sent through node-gcm (which actually uses FCM)
 };
