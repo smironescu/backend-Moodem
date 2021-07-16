@@ -26,7 +26,9 @@ const data = {
      */
     body: 'Powered by AppFeel',
     custom: {
-        sender: 'AppFeel'
+        sender: 'AppFeel',
+        userSender: 'User Sender',
+        userReceiver: 'User Receiver'
     },
     priority: 'high', // gcm, apn. Supported values are 'high' or 'normal' (gcm). Will be translated to 10 and 5 for apn. Defaults to 'high'
     collapseKey: '', // gcm for android, used as collapseId in apn
@@ -80,6 +82,12 @@ class MyNotifications {
     async sendNotification(msgToReceiver, msgFromSender) {
         const { deviceToken = null } = msgToReceiver.user;
         const note = Object.assign(data, {
+            custom: {
+                userSender: msgFromSender || data.custom.userSender,
+                userReceiver: msgToReceiver || data.custom.msgToReceiver
+
+            },
+            badge: msgFromSender.badge || data.badge,
             alert: {
                 title: msgFromSender.user.name,
                 body: msgFromSender.text

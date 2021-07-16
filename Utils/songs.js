@@ -1,6 +1,6 @@
 const ytsr = require('ytsr');
 const ytdl = require('ytdl-core');
-const { options } = require('./ytdlConfig');
+const { OPTIONS } = require('./ytdlConfig');
 const { getKeyLocalAndServer, setKeyLocalAndServer } = require('./cache');
 const { ONE_YEAR } = require('./constants');
 // const { getInfo } = require('./extractors');
@@ -77,7 +77,7 @@ async function searchYoutubeForVideoIds(searchedText) {
 async function getSong(videoId) {
     try {
         // await getStreamBuffers(videoId);
-        const audioYT = await ytdl.getInfo(videoId, options); // await getSongInfo(videoId);
+        const audioYT = await ytdl.getInfo(videoId, OPTIONS); // await getSongInfo(videoId);
         // eslint-disable-next-line max-len
         // await getSongInfo(videoId);
         // eslint-disable-next-line max-len
@@ -138,7 +138,7 @@ async function getSongsOrCache(videoIds) {
     return {};
 }
 
-function checkIfValid(song, songConverted) {
+function checkIfValidPromise(song, songConverted) {
     if (song.status !== 'rejected' && Object.keys(song.value).length) {
         songConverted.push(song.value);
         return true;
@@ -151,7 +151,9 @@ async function getAllSongs(videoIds) {
     try {
         const songs = await getSongsOrCache(videoIds);
 
-        songs.filter((song) => checkIfValid(song, songsCoverted), songsCoverted);
+        if (songs && Object.keys(songs).length) {
+            songs.filter((song) => checkIfValidPromise(song, songsCoverted), songsCoverted);
+        }
 
         return songsCoverted;
     } catch (error) {

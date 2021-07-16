@@ -6,7 +6,7 @@ const { makeRandomChars, getFirefoxUserAgent } = require('./generators');
 const proxy = process.env.http_proxy || 'http://143.110.219.91:3000';
 const agent = HttpsProxyAgent(proxy);
 
-const headers = {
+const HEADERS = {
     Cookie: COOKIE,
     'x-youtube-client-version': '2.20191008.04.01',
     'x-youtube-client-name': '1',
@@ -17,15 +17,15 @@ const headers = {
     referer: `https://${makeRandomChars(6)}.com`
 };
 
-miniget.defaultOptions.headers = headers;
+miniget.defaultOptions.headers = HEADERS;
 
-const options = {
+const OPTIONS = {
     requestOptions: {
-        headers
+        headers: HEADERS
     }
 };
 
 module.exports = {
-    headers,
-    options
+    HEADERS,
+    OPTIONS
 };

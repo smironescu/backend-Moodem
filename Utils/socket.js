@@ -59,9 +59,9 @@ class MySocket {
     async getSearchedSongs({ searchedText }) {
         try {
             const videoIds = await searchYoutubeForVideoIds(searchedText);
-            const songs = await getAllSongs(videoIds);
+            // const songs = await getAllSongs(videoIds);
             this.serverIO.to(this.socket.id).emit('get-songs', { // send message only to sender-client
-                songs: [...setExtraAttrs(songs, this.socket.uid, true)]
+                videoIds // songs: [...setExtraAttrs(songs, this.socket.uid, true)]
             });
         } catch (error) {
             console.error('Error converting allSongs on search-songs-on-youtube', error);
@@ -143,7 +143,6 @@ class MySocket {
     async getChatMsg({ chatRoom, msg }) {
         buildMedia(chatRoom);
         const { messages } = chatRooms[chatRoom];
-
         messages.push(msg);
         setKeyLocalAndServer(chatRoom, messages, ONE_YEAR);
         this.serverIO.to(chatRoom).emit('set-chat-message', msg);
